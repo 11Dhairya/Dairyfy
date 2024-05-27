@@ -2,35 +2,48 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
-const ffmpeg = require('ffmpeg-static');
-const fs = require('fs');
-const router = require('./routes');
-const { hostname } = require('os');
 
 const app = express();
-const PORT = 3000;
-app.use(express.json());
-app.use('/api', router);
 const server = http.createServer(app);
-const io = new socketIo.Server(server);
+const io = socketIo(server);
 
-app.use(express.static(path.join(__dirname, 'public')));
+// all events 
+const allEvents = require('./server/events');
+
+const PORT = process.env.PORT || 3000;
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'client/build')));
+app.use('/songs', express.static(path.join(__dirname, 'songs')));
+app.use(express.static(path.join(__dirname, 'client/public'))); // Serve public files
+
+
 
 io.on('connection', (socket) => {
   console.log('A user connected');
-  
-//   // Handle song play event
-//   socket.on('play-song', () => {
-//     const filePath = 'path/to/your/song.mp3';
-//     const readStream = fs.createReadStream(filePath);
-//     readStream.pipe(socket);
-//   });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
+  allEvents(socket, io);
 });
 
-server.listen(3000, () => {
-  console.log('Server running on port 3000');
+// All other GET requests not handled before will return the React app
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname + '/client/build/index.html'));
 });
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+
+
+
+
+// version: "2"
+// authtoken: 2h0uHvmhnjEVjEKHzZ6Ma7ahCl4_7aZNcUh2aRpTVSxwa2EXj
+// tunnels:
+//   app:
+//     addr: 3000
+//     proto: http
+//     ip_restriction:
+//       allow_cidrs:
+//         - "103.184.71.128/32"
+//         - "122.180.191.90/32"
