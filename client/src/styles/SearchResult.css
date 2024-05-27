@@ -1,0 +1,76 @@
+/* SearchResult.css */
+.search-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+}
+
+.info {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.title-channel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.channel {
+  color: #666;
+}
+
+.duration-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.duration {
+  margin-right: 15px;
+}
+
+.thumbnail {
+  flex: 0 0 auto;
+  margin-right: 10px;
+}
+
+.thumbnail-img {
+  /* width: ;  */
+  height: 20%; 
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.btn {
+  padding: 5px 10px;
+  margin-left: 5px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.icon {
+  width: 32px; /* Adjust the size as needed */
+  height: 40px; /* Adjust the size as needed */
+}
+
+.play {
+  background-color: #5cb85c;
+  color: white;
+}
+
+
+
