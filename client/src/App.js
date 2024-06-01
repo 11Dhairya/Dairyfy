@@ -5,6 +5,9 @@ import 'react-h5-audio-player/lib/styles.css';
 import './App.css';
 import SearchBar from './components/SearchBar';
 import SearchResult from './components/SearchResult';
+import { BrowserRouter as Router, Route,Switch,Link} from 'react-router-dom';
+import Login from './components/Login';
+import Register from './components/Register';
 
 const socket = io('http://192.168.1.3:8080');
 
@@ -16,6 +19,7 @@ function App() {
   const [isSyncing, setIsSyncing] = useState(false); 
   const [searchResults, setSearchResults] = useState([]); 
   const [currentSongPath, setCurrentSongPath] = useState("");
+  const [authState, setAuthState] = useState({username:"",id:0,status:false});
     
   useEffect(() => {
     socket.on('play-song', () => {
@@ -106,6 +110,36 @@ function App() {
 
   return (
     <div className="App">
+       <Router>
+          <div className='navbar'>
+          <div className='links'>
+            {(!authState.status)?(
+              <>
+                  <Link to="/login">Login</Link>
+                  <Link to="/register">Register</Link>
+              </>
+            ):(
+              <>
+            <Link to="/createpost">Create A Post</Link>
+            <Link to="/">Home Page</Link>
+              </>
+            )}
+          </div>
+          {/* <div className='loggedInContainer'>
+              <h1>{authState.username}</h1>
+              {authState.status&& <button onClick={logout}>Logout</button>}
+          </div> */}
+          </div>
+          <Switch>
+          {/* <Route exact path="/"><Home/> </Route> */}
+          {/* <Route exact path="/createpost"><CreatePost/></Route> */}
+          {/* <Route exact path="/post/:id"><Post/></Route> */}
+          <Route exact path="/login"><Login/></Route>
+          <Route exact path="/register"><Register/></Route>
+          {/* <Route exact path="/profile/:id"><Profile/></Route> */}
+          {/* <Route exact path="*"><PageNotFound/></Route> */}
+          </Switch>
+        </Router>
       <h1>Dairyfy</h1>
       <input 
         type="text" 
