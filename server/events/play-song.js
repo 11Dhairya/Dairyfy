@@ -1,6 +1,9 @@
 module.exports = (socket, io) => {
-  socket.on('play-song', (room) => {
+  socket.on('play-song', ({room}) => {
     console.log(`play-song emitted to room: ${room}`);
-    io.to(room).emit('play-song');
+    if (room)
+      io.to(room).emit('play-song');
+    else
+      socket.emit('play-song');
   });
 };

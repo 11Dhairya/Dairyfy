@@ -5,12 +5,35 @@ const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const cors = require('cors');
+// const io = socketIo(server);
+const io = socketIo(server, {
+  cors: {
+    origin: 'http://192.168.1.3:8080',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type'],
+    credentials: true
+  }
+});
+
+// app.use(cors({
+//   origin: 'http://localhost:3000',
+//   methods: ['GET', 'POST'],
+//   allowedHeaders: ['Content-Type'],
+//   credentials: true
+// }));
+
+app.use(cors({
+  origin: 'http://192.168.1.3:8080', // Replace with your laptop's local IP and port
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
+  credentials: true
+}));
 
 // all events 
 const allEvents = require('./server/events');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'client/build')));
