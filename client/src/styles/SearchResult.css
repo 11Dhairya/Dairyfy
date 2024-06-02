@@ -64,13 +64,15 @@
 
 .icon {
   width: 32px; /* Adjust the size as needed */
-  height: 40px; /* Adjust the size as needed */
+  height: 34px; /* Adjust the size as needed */
 }
 
 .play {
   background-color: #5cb85c;
   color: white;
 }
+
+
 
 
 

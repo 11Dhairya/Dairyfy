@@ -92,8 +92,9 @@ const getSongDataUriFromYT = async (videoId) => {
                 mp3Buffer = Buffer.concat([mp3Buffer, chunk]);
             })
             .on('end', () => {
-                const dataUri = `data:audio/mp3;base64,${mp3Buffer.toString('base64')}`;
-                resolve({ dataUri, buffer: mp3Buffer });
+                // const dataUri = `data:audio/mp3;base64,${mp3Buffer.toString('base64')}`;
+                // resolve({ dataUri, buffer: mp3Buffer });
+                resolve(mp3Buffer);
             })
             .pipe()
             .on('data', (chunk) => {
@@ -133,8 +134,10 @@ const saveToFile = async (buffer, filePath) => {
 async function main() {
     try {
         const videoId = 'WgTMeICssXY';
-        const {dataUri, buffer} = await getSongDataUriFromYT(videoId);
-        console.log('Data URI:', dataUri);
+        // const {dataUri, buffer} = await getSongDataUriFromYT(videoId);
+        // console.log('Data URI:', dataUri);
+        const buffer = await getSongDataUriFromYT(videoId);
+
         await saveToFile(buffer, 'song.mp3');
         // console.log(uri);
         // await getSongFromYT(videoId);

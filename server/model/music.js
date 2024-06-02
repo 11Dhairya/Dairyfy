@@ -10,22 +10,21 @@ const getSong = async (songId) => {
 
     const result = await pgClient.query(query, values);
     
-    // song in db
     if (result && result.rows && result.rows.length > 0) {
       songBuffer = result.rows[0].buffer;
-      songUri = `data:audio/mp3;base64,${songBuffer.toString('base64')}`;
+      // songUri = `data:audio/mp3;base64,${songBuffer.toString('base64')}`;
     }
-    else{ // get from YT
-      const { dataUri: uri, buffer: songBuffer } = await getSongDataUriFromYT(songId);
-      if (!songBuffer || !uri) throw new Error(`No song with songId = ${songId} in database and YT`);
+    else{ 
+      // const { dataUri: uri, buffer: songBuffer } = await getSongDataUriFromYT(songId);
+      songBuffer  = await getSongDataUriFromYT(songId);
+      // if (!songBuffer || !uri) throw new Error(`No song with songId = ${songId} in database and YT`);
       // await insertSong(songId, songBuffer);
-      insertSong(songId, songBuffer).catch(error => {
-        console.error('Error inserting song:', error);
-      });
-      songUri = uri;
+      insertSong(songId, songBuffer).catch(error => {console.error('Error inserting song:', error);});
+      // songUri = uri;
     }
-    return songUri;
- 
+    // return songUri;
+    return songBuffer;
+
   } catch (error) {
     console.log('model/music/getSong', error);
   }
