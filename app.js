@@ -15,7 +15,7 @@ const cors = require('cors');
 // const io = socketIo(server);
 const io = socketIo(server, {
   cors: {
-    origin: '*',
+    origin: process.env.FRONTEND_URL,
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type'],
     credentials: true
@@ -23,7 +23,7 @@ const io = socketIo(server, {
 });
 
 app.use(cors({
-  origin: '*', // Replace with your laptop's local IP and port
+  origin: process.env.FRONTEND_URL, // Replace with your laptop's local IP and port
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type'],
   credentials: true
