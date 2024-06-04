@@ -1,0 +1,17 @@
+# node modules
+node_modules/
+node_modules/*
+node_modules
+
+.DS_Store
+
+.env
+songs/
+songs/*
+songs
+
+client/node_modules
+client/node_modules/*
+client/node_modules/
+
+.DS_Store
