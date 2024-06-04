@@ -6,7 +6,7 @@
 // import SearchBar from './components/SearchBar';
 // import SearchResult from './components/SearchResult';
 
-// const socket = io('http://192.168.1.3:8080');
+// const socket = io('http://103.82.125.67:8080');
 
 // function App() {
 //   const [room, setRoom] = useState('');
@@ -16,6 +16,7 @@
 //   const [isSyncing, setIsSyncing] = useState(false); 
 //   const [searchResults, setSearchResults] = useState([]); 
 //   const [currentSongPath, setCurrentSongPath] = useState("");
+//   const [queue, setQueue] = useState([]); // Queue to hold songs
     
 //   useEffect(() => {
 //     socket.on('play-song', () => {
@@ -35,7 +36,6 @@
 //     socket.on('seek-song', (seekTime) => {
 //       setIsSeeking(true);
 //       setIsSyncing(true); 
-//       // player.current.audio.current.pause();
 //       player.current.audio.current.currentTime = seekTime;
 //       player.current.audio.current.onseeked = () => {
 //         player.current.audio.current.play()
@@ -47,10 +47,12 @@
 //       }, 1000); 
 //     });
   
-//     socket.on('db-get-song-result', (songUri) => {
-//       console.log("db-get-song-result URI recvd");
+//     socket.on('db-get-song-result', (buffer) => {
+//       console.log(buffer, Date.now());
+//       const songUri = bufferToDataUri(buffer);
+//       console.log("db-get-song-result URI received: ", Date.now(), songUri);
 //       setCurrentSongPath(songUri);
-//       // setTimeout(() => { player.current.audio.current.play(); }, 500);
+//       setTimeout(() => {player.current.audio.current.play();}, 500);
 //     });
     
 //     return () => {
@@ -59,8 +61,17 @@
 //       socket.off('seek-song');
 //       socket.off('db-get-song-result');
 //     };
-//   }, [ isPlaying, isSeeking ]);
+//   }, [isPlaying, isSeeking]);
   
+//   const bufferToDataUri = (buffer) => {
+//     const bytes = new Uint8Array(buffer);
+//     let binary = '';
+//     bytes.forEach(byte => {
+//         binary += String.fromCharCode(byte);
+//     });
+//     return `data:audio/mp3;base64,${btoa(binary)}`;
+// };
+
 //   const joinRoom = () => {
 //     if (room) {
 //       socket.emit('join-room', room);
@@ -69,13 +80,13 @@
 
 //   const handlePlay = () => {
 //     if (!isSeeking) {
-//       socket.emit('play-song', {room});
+//       socket.emit('play-song', { room });
 //     }
 //   };
 
 //   const handlePause = () => {
 //     if (!isSeeking) {
-//       socket.emit('pause-song', {room});
+//       socket.emit('pause-song', { room });
 //     }
 //   };
 
@@ -88,20 +99,35 @@
 //   };
 
 //   const handlePlaySong = (videoId) => {
+//     console.log('Song requested: ', Date.now());
 //     if (!isSeeking) {
 //       if (!room){
 //         console.log(`Play song with videoId: ${videoId}`);
-//         socket.emit('db-get-song', {songId: videoId});
-//       }
-//       else{
+//         socket.emit('db-get-song', { songId: videoId });
+//       } else {
 //         console.log(`Play song in Room: ${room} with videoId: ${videoId}`);
-//         socket.emit('db-get-song', {room, songId: videoId});
+//         socket.emit('db-get-song', { room, songId: videoId });
 //       }
 //     }
 //   };
 
 //   const handleDownloadSong = (videoId) => {
 //     console.log(`Download song with videoId: ${videoId}`);
+//   };
+
+//   const handleAddToQueue = (videoId) => {
+//     console.log(`Song with ${videoId} added to Queue`);
+//     setQueue(prevQueue => [...prevQueue, videoId]);
+//   };
+
+//   const handleSongEnded = () => {
+//     if (queue.length > 0) {
+//       const nextSongId = queue[0];
+//       setQueue(prevQueue => prevQueue.slice(1));
+//       handlePlaySong(nextSongId);
+//     } else {
+//       setIsPlaying(false);
+//     }
 //   };
 
 //   return (
@@ -123,6 +149,7 @@
 //           onPlay={handlePlay}
 //           onPause={handlePause}
 //           onSeeked={handleSeeked}
+//           onEnded={handleSongEnded} // Handle song ended
 //         />
 //       </div>
 //       <SearchBar socket={socket} setSearchResults={setSearchResults}/>
@@ -130,9 +157,8 @@
 //         <div>  
 //           <h3>Search Results:</h3>
 //           {searchResults.map((song) => {
-//             return <div>
+//             return <div key={song.videoId}> {/* Add key here */}
 //               <SearchResult
-//                 key={song.videoId} // Use videoId as key
 //                 videoId={song.videoId}
 //                 title={song.title}
 //                 channelTitle={song.channelTitle}
@@ -140,6 +166,7 @@
 //                 thumbnail={song.thumbnail}
 //                 onPlay={handlePlaySong}
 //                 onDownload={handleDownloadSong}
+//                 onAddToQueue={handleAddToQueue} // Add to queue
 //               />
 //             </div>
 //           })}
@@ -152,17 +179,20 @@
 // export default App;
 
 
-import React, { useEffect, useState, useRef } from 'react';
+// App.js
+import React, { useState, useRef, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import io from 'socket.io-client';
 import AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import './App.css';
 import SearchBar from './components/SearchBar';
 import SearchResult from './components/SearchResult';
+import LandingPage from './components/LandingPage';
 
 const socket = io('http://192.168.1.3:8080');
 
-function App() {
+function MainPage({ isAuthenticated }) {
   const [room, setRoom] = useState('');
   const player = useRef();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -171,7 +201,7 @@ function App() {
   const [searchResults, setSearchResults] = useState([]); 
   const [currentSongPath, setCurrentSongPath] = useState("");
   const [queue, setQueue] = useState([]); // Queue to hold songs
-    
+     
   useEffect(() => {
     socket.on('play-song', () => {
       if (!isSeeking) {
@@ -200,7 +230,7 @@ function App() {
         setIsSyncing(false); 
       }, 1000); 
     });
-  
+   
     socket.on('db-get-song-result', (buffer) => {
       console.log(buffer, Date.now());
       const songUri = bufferToDataUri(buffer);
@@ -208,7 +238,7 @@ function App() {
       setCurrentSongPath(songUri);
       setTimeout(() => {player.current.audio.current.play();}, 500);
     });
-    
+     
     return () => {
       socket.off('play-song');
       socket.off('pause-song');
@@ -216,7 +246,7 @@ function App() {
       socket.off('db-get-song-result');
     };
   }, [isPlaying, isSeeking]);
-  
+ 
   const bufferToDataUri = (buffer) => {
     const bytes = new Uint8Array(buffer);
     let binary = '';
@@ -224,7 +254,7 @@ function App() {
         binary += String.fromCharCode(byte);
     });
     return `data:audio/mp3;base64,${btoa(binary)}`;
-};
+  };
 
   const joinRoom = () => {
     if (room) {
@@ -284,6 +314,10 @@ function App() {
     }
   };
 
+  if (!isAuthenticated) {
+    return <Redirect to="/" />;
+  }
+
   return (
     <div className="App">
       <h1>Dairyfy</h1>
@@ -327,6 +361,23 @@ function App() {
         </div>
       )}
     </div>
+  );
+}
+
+function App() {
+  const [isAuthenticated, setAuthenticated] = useState(false);
+
+  return (
+    <Router>
+      <Switch>
+        <Route path="/" exact>
+          <LandingPage setAuthenticated={setAuthenticated} />
+        </Route>
+        <Route path="/main">
+          <MainPage isAuthenticated={isAuthenticated} />
+        </Route>
+      </Switch>
+    </Router>
   );
 }
 

@@ -16,12 +16,12 @@ const io = socketIo(server, {
   }
 });
 
-// app.use(cors({
-//   origin: 'http://localhost:3000',
-//   methods: ['GET', 'POST'],
-//   allowedHeaders: ['Content-Type'],
-//   credentials: true
-// }));
+app.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+  credentials: true
+}));
 
 app.use(cors({
   origin: 'http://192.168.1.3:8080', // Replace with your laptop's local IP and port
@@ -29,6 +29,40 @@ app.use(cors({
   allowedHeaders: ['Content-Type'],
   credentials: true
 }));
+
+
+/////
+// const io = socketIo(server, {
+//   cors: {
+//     origin: 'http://103.82.125.67:8080', // Your friend's public IP address
+//     methods: ['GET', 'POST', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type'],
+//     credentials: true
+//   }
+// });
+
+// const allowOnlyFriendIP = (req, res, next) => {
+//   const friendIPAddress = '103.82.125.67'; // Your friend's public IP address
+//   const clientIPAddress = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+//   if (clientIPAddress === friendIPAddress) {
+//     next(); 
+//   } else {
+//     res.status(403).send('Forbidden'); // Send a forbidden response
+//   }
+// };
+
+// // Use the IP address check middleware before other routes
+// app.use(allowOnlyFriendIP);
+
+// // Use CORS with the same origin as in the socket.io configuration
+// app.use(cors({
+//   origin: 'http://103.82.125.67:8080', // Your friend's public IP address
+//   methods: ['GET', 'POST', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type'],
+//   credentials: true
+// }));
+// /////
+
 
 // all events 
 const allEvents = require('./server/events');
