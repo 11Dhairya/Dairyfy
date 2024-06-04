@@ -15,7 +15,7 @@ const cors = require('cors');
 // const io = socketIo(server);
 const io = socketIo(server, {
   cors: {
-    origin: process.env.FRONTEND_URL,
+    origin: '*',
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type'],
     credentials: true
@@ -23,7 +23,7 @@ const io = socketIo(server, {
 });
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL, // Replace with your laptop's local IP and port
+  origin: '*', // Replace with your laptop's local IP and port
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type'],
   credentials: true
@@ -34,7 +34,6 @@ app.use(cors({
 const allEvents = require('./server/events');
 
 const PORT = process.env.PORT || 8080;
-console.log(PORT);
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'client/build')));
