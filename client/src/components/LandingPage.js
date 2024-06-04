@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 function LandingPage({ setAuthenticated }) {
   const [mobileNumber, setMobileNumber] = useState('');
   const history = useHistory();
-  const whitelistNumbers = ['9315614507'];
+  const whitelistNumbers = ['9315614507', '7007128936', '8052982826', '8826586858'];
 
   const handleInputChange = (e) => {
     setMobileNumber(e.target.value);

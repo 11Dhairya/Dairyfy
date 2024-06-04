@@ -190,7 +190,10 @@ import SearchBar from './components/SearchBar';
 import SearchResult from './components/SearchResult';
 import LandingPage from './components/LandingPage';
 
-const socket = io('http://192.168.1.3:8080');
+// const socket = io('http://192.168.1.3:8080');
+const socket = io(`${process.env.REACT_APP_WEBSOCKET_SERVER_URL}${process.env.PORT}`);
+console.log(process.env.REACT_APP_WEBSOCKET_SERVER_URL);
+
 
 function MainPage({ isAuthenticated }) {
   const [room, setRoom] = useState('');
@@ -232,9 +235,8 @@ function MainPage({ isAuthenticated }) {
     });
    
     socket.on('db-get-song-result', (buffer) => {
-      console.log(buffer, Date.now());
       const songUri = bufferToDataUri(buffer);
-      console.log("db-get-song-result URI received: ", Date.now(), songUri);
+      console.log("db-get-song-result URI received: ");
       setCurrentSongPath(songUri);
       setTimeout(() => {player.current.audio.current.play();}, 500);
     });
